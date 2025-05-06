@@ -1,0 +1,22 @@
+[
+  {
+    "name": "Attack Forward",
+    "description": "Take your unit and attack in force in a forward direction.",
+    "id": 1
+  },
+  {
+    "name": "Attack Flank",
+    "description": "Take your unit and attack in force on a flank of the enemy.",
+    "id": 2
+  },
+  {
+    "name": "Defend Forward",
+    "description": "Take your unit, prepare defenses to the forward direction.",
+    "id": 3
+  },
+  {
+    "name": "Retreat Backward",
+    "description": "Take your unit retreat hastily to the backward direction.",
+    "id": 4
+  }
+]
