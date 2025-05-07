@@ -15,4 +15,5 @@ module com.devricks.civilwargeneral {
     opens com.devricks.civilwargeneral to javafx.fxml;
     exports com.devricks.civilwargeneral;
     opens com.devricks.civilwargeneral.orders to com.fasterxml.jackson.databind;
+    opens com.devricks.civilwargeneral.controllers to javafx.fxml;
 }
