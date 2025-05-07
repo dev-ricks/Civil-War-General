@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<AnchorPane xmlns="http://javafx.com/javafx"
+            xmlns:fx="http://javafx.com/fxml"
+            fx:controller="com.devricks.civilwargeneral.controllers.MainView"
+            prefHeight="400.0" prefWidth="600.0">
+
+    <Button fx:id="btnGenerateCommand" layoutX="250.0" layoutY="150.0" mnemonicParsing="false" onAction="#onCommandButtonClick" text="Generate Command"/>
+
+    <ListView fx:id="commandList" layoutX="50.0" layoutY="200.0" prefHeight="200.0" prefWidth="500.0">
+    </ListView>
+</AnchorPane>

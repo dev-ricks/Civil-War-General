@@ -6,6 +6,7 @@ import java.security.SecureRandom;
 
 public class CommandSelector {
 
+    // Maybe this should be static if state is not a property needed for commandselector, will evaluate later on
     public Order randomOrderSelector(Orders orders) {
         if (orders == null || orders.getAllOrders().isEmpty()) {
             return null;
