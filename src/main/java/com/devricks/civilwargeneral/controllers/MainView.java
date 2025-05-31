@@ -11,7 +11,7 @@ public class MainView {
     public Button btnGenerateCommand;
     public ListView<Order> commandList;
 
-    private Orders orders;
+    Orders orders;
 
     public void initialize() {
         commandList.getItems().clear();
