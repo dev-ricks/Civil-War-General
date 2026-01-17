@@ -95,6 +95,13 @@
             <version>5.12.2</version>
             <scope>test</scope>
         </dependency>
+        <!-- JUnit Platform Suite to allow a suite class that aggregates all tests under a package -->
+        <dependency>
+            <groupId>org.junit.platform</groupId>
+            <artifactId>junit-platform-suite</artifactId>
+            <version>1.12.2</version>
+            <scope>test</scope>
+        </dependency>
         <dependency>
             <groupId>org.mockito</groupId>
             <artifactId>mockito-junit-jupiter</artifactId>

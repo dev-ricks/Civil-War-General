@@ -2,27 +2,88 @@ package com.devricks.civilwargeneral.controllers;
 
 import com.devricks.civilwargeneral.ai.CommandSelector;
 import com.devricks.civilwargeneral.orders.Order;
-import com.devricks.civilwargeneral.orders.Orders;
+import com.devricks.civilwargeneral.orders.OrdersLoaderImplementation;
 import javafx.event.ActionEvent;
+import javafx.fxml.FXML;
 import javafx.scene.control.Button;
 import javafx.scene.control.ListView;
 
-public class MainView {
-    public Button btnGenerateCommand;
-    public ListView<Order> commandList;
 
-    Orders orders;
+/**
+ * Controller implementation for the Main View.
+ * This class serves as the View in the MVP architecture and is linked to the FXML.
+ */
+public class MainView implements MainViewUI {
+    @FXML
+    private Button btnGenerateCommand;
+    @FXML
+    private ListView<Order> commandList;
 
-    public void initialize() {
-        commandList.getItems().clear();
-        orders = new Orders();
-        orders.loadFromFile("/com/devricks/civilwargeneral/default-orders.json");
+    private MainViewPresenter presenter;
+
+    /**
+     * Default constructor for MainView.
+     */
+    public MainView() {
     }
 
-    public void onCommandButtonClick(ActionEvent actionEvent) {
-        System.out.println("Event triggered by: " + actionEvent.getSource());
-        CommandSelector commandSelector = new CommandSelector();
-        Order selectedOrder = commandSelector.randomOrderSelector(orders);
-        commandList.getItems().add(selectedOrder);
+    /**
+     * Sets the presenter for this view.
+     *
+     * @param presenter the presenter to associate with this view
+     */
+    public void setPresenter(MainViewPresenter presenter) {
+        this.presenter = presenter;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void clearList() {
+        commandList.getItems().clear();
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void setGeneratedEnabled(boolean enabled) {
+        btnGenerateCommand.setDisable(!enabled);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void addOrder(Order order) {
+        if (order == null) return;
+        commandList.getItems().add(order);
+    }
+
+    /**
+     * Initializes the view. If no presenter is set, it creates a default one.
+     * This is called automatically by JavaFX after the FXML is loaded.
+     */
+    @FXML
+    public void initialize() {
+        if (presenter == null) {
+            var loader = new OrdersLoaderImplementation();
+            var selector = new CommandSelector();
+            this.presenter = new MainViewPresenter(this, loader, selector);
+        }
+        presenter.initialize();
+    }
+
+    /**
+     * Event handler for the command generation button click.
+     *
+     * @param event the action event
+     */
+    @FXML
+    public void onCommandButtonClick(ActionEvent event) {
+        if (presenter != null) {
+            presenter.onGenerateClicked();
+        }
     }
 }

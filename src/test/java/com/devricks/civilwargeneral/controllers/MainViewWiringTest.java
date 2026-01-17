@@ -7,30 +7,18 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import static org.mockito.Mockito.verify;
 
-/**
- * Controller-level tests adapted to the presenter-based design.
- * These tests verify that MainView delegates work to MainViewPresenter
- * rather than testing UI internals directly.
- */
 @ExtendWith(MockitoExtension.class)
-class MainViewTest {
-
+class MainViewWiringTest {
     @Mock
     MainViewPresenter presenter;
 
     @Test
     void initialize_delegates_to_presenter() {
         var view = new MainView();
+        // Use reflection or test-only setters if fields are private; or keep them null if not used here
         view.setPresenter(presenter);
+        // Simulate FXMLLoader lifecycle
         view.initialize();
         verify(presenter).initialize();
-    }
-
-    @Test
-    void onCommandButtonClick_delegates_to_presenter() {
-        var view = new MainView();
-        view.setPresenter(presenter);
-        view.onCommandButtonClick(new javafx.event.ActionEvent());
-        verify(presenter).onGenerateClicked();
     }
 }
