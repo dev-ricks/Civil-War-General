@@ -173,11 +173,46 @@ public Order strategicSelector(Orders orders, GeneralAttributes general)
 
 ## UI Controllers
 
-### MainView Class
+### MainViewUI Interface
 
 **Package**: `com.devricks.civilwargeneral.controllers`
 
-Main UI controller handling user interactions and command generation.
+Defines the contract for the Main View, allowing the Presenter to update the UI without direct dependency on JavaFX components.
+
+| Method | Return Type | Description |
+|--------|-------------|-------------|
+| `clearList()` | `void` | Clears the command history list |
+| `setGeneratedEnabled(boolean)` | `void` | Enables/disables the generate button |
+| `addOrder(Order)` | `void` | Adds a selected order to the list |
+
+---
+
+### MainViewPresenter Class
+
+**Package**: `com.devricks.civilwargeneral.controllers`
+
+Coordinates logic between the data models and the UI.
+
+#### Constructor
+
+```java
+public MainViewPresenter(MainViewUI ui, OrdersLoader loader, CommandSelector selector)
+```
+
+#### Public Methods
+
+| Method | Return Type | Description |
+|--------|-------------|-------------|
+| `initialize()` | `void` | Loads default orders and sets initial UI state |
+| `onGenerateClicked()` | `void` | Handles command generation logic |
+
+---
+
+### MainView Class (View Implementation)
+
+**Package**: `com.devricks.civilwargeneral.controllers`
+
+JavaFX controller implementing the `MainViewUI` interface.
 
 #### FXML Components
 
@@ -186,22 +221,14 @@ Main UI controller handling user interactions and command generation.
 | Generate Button | `Button` | `btnGenerateCommand` | Triggers command selection |
 | Command List | `ListView<Order>` | `commandList` | Displays order history |
 
-#### Public Methods
-
-| Method | Return Type | Description |
-|--------|-------------|-------------|
-| `initialize()` | `void` | Initializes controller and loads orders |
-| `onCommandButtonClick(ActionEvent)` | `void` | Handles command generation button |
-
 #### Event Handling
 
 ```java
 @FXML
-protected void onCommandButtonClick(ActionEvent actionEvent) {
-    // Generates new command and adds to history
-    CommandSelector commandSelector = new CommandSelector();
-    Order selectedOrder = commandSelector.randomOrderSelector(orders);
-    commandList.getItems().add(selectedOrder);
+public void onCommandButtonClick(ActionEvent event) {
+    if (presenter != null) {
+        presenter.onGenerateClicked();
+    }
 }
 ```
 
@@ -325,22 +352,15 @@ for (int i = 0; i < 5; i++) {
 ### UI Integration
 
 ```java
-public class CustomController {
-    @FXML private ListView<Order> orderHistory;
-    private Orders availableOrders;
-    private CommandSelector selector;
-    
-    public void initialize() {
-        availableOrders = new Orders();
-        availableOrders.loadFromFile("/path/to/orders.json");
-        selector = new CommandSelector();
-    }
+public class MainView implements MainViewUI {
+    @FXML private Button btnGenerateCommand;
+    @FXML private ListView<Order> commandList;
+    private MainViewPresenter presenter;
     
     @FXML
-    public void generateCommand() {
-        Order selected = selector.randomOrderSelector(availableOrders);
-        if (selected != null) {
-            orderHistory.getItems().add(selected);
+    public void onCommandButtonClick(ActionEvent event) {
+        if (presenter != null) {
+            presenter.onGenerateClicked();
         }
     }
 }

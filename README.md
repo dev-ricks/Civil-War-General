@@ -2,9 +2,9 @@
 
 A JavaFX-based Civil War military command simulation application that provides tactical order generation and decision-making tools for military history enthusiasts, educators, and game developers.
 
-![Java](https://img.shields.io/badge/Java-17+-orange.svg)
+![Java](https://img.shields.io/badge/Java-23-orange.svg)
 ![JavaFX](https://img.shields.io/badge/JavaFX-17.0.12-blue.svg)
-![Maven](https://img.shields.io/badge/Maven-3.6+-green.svg)
+![Maven](https://img.shields.io/badge/Maven-3.9+-green.svg)
 ![License](https://img.shields.io/badge/License-MIT-yellow.svg)
 
 ## 📋 Table of Contents
@@ -57,8 +57,8 @@ The long-term vision includes AI-driven tactical decision-making based on:
 ## 🚀 Installation
 
 ### Prerequisites
-- **Java Development Kit (JDK) 17 or higher**
-- **Maven 3.6 or higher**
+- **Java Development Kit (JDK) 23**
+- **Maven 3.9 or higher**
 - **Git** (for cloning the repository)
 
 ### Quick Start
@@ -78,6 +78,15 @@ The long-term vision includes AI-driven tactical decision-making based on:
    ```bash
    mvn javafx:run
    ```
+
+### Note on IDE execution
+When running tests in an IDE, you may need to add VM options to allow reflection across module boundaries:
+```bash
+--add-opens com.devricks.civilwargeneral/com.devricks.civilwargeneral=ALL-UNNAMED
+--add-opens com.devricks.civilwargeneral/com.devricks.civilwargeneral.orders=ALL-UNNAMED
+--add-opens com.devricks.civilwargeneral/com.devricks.civilwargeneral.ai=ALL-UNNAMED
+--add-opens com.devricks.civilwargeneral/com.devricks.civilwargeneral.controllers=ALL-UNNAMED
+```
 
 ### Alternative: Build Executable JAR
 
@@ -124,25 +133,29 @@ Civil-War-General/
 │   │   ├── java/
 │   │   │   └── com/devricks/civilwargeneral/
 │   │   │       ├── CivilWarGeneral.java          # Main application entry
-│   │   │       ├── HelloApplication.java         # Alternative entry point
-│   │   │       ├── HelloController.java          # Demo controller
 │   │   │       ├── ai/
 │   │   │       │   └── CommandSelector.java      # Order selection logic
 │   │   │       ├── controllers/
-│   │   │       │   └── MainView.java             # Main UI controller
+│   │   │       │   ├── MainView.java             # Main UI controller (View)
+│   │   │       │   ├── MainViewPresenter.java    # Presentation logic
+│   │   │       │   └── MainViewUI.java           # UI interface contract
 │   │   │       └── orders/
 │   │   │           ├── Order.java                # Order data model
-│   │   │           └── Orders.java               # Order collection manager
+│   │   │           ├── Orders.java               # Order collection manager
+│   │   │           ├── OrdersLoader.java         # Data loading interface
+│   │   │           └── OrdersLoaderImplementation.java # Classpath loader
 │   │   └── resources/
 │   │       └── com/devricks/civilwargeneral/
 │   │           ├── default-orders.json           # Default tactical orders
-│   │           ├── main-view.fxml               # Main UI layout
-│   │           └── hello-view.fxml              # Demo UI layout
+│   │           └── main-view.fxml               # Main UI layout
 │   └── test/
-│       └── java/                                # Unit tests (to be implemented)
+│       └── java/                                # Comprehensive test suite
 ├── pom.xml                                      # Maven configuration
 ├── README.md                                    # This file
-├── REQUIREMENTS_STAGE_1.md                     # Stage 1 requirements specification
+├── REQUIREMENTS_STAGE_1.md                     # Stage 1 requirements
+├── REQUIREMENTS_STAGE_2.md                     # Stage 2 requirements
+├── ARCHITECTURE.md                             # Architectural documentation
+├── API.md                                      # API reference
 ├── CONTRIBUTING.md                              # Contribution guidelines
 └── .gitignore                                   # Git ignore rules
 ```
@@ -151,21 +164,21 @@ Civil-War-General/
 
 ### Technology Stack
 
-- **Java 17+** - Core programming language
+- **Java 23** - Core programming language
 - **JavaFX 17.0.12** - Desktop UI framework
-- **Maven** - Build automation and dependency management
-- **Jackson** - JSON processing library
-- **ControlsFX** - Enhanced UI controls
-- **FormsFX** - Advanced form handling
+- **Maven 3.9+** - Build automation and dependency management
+- **Jackson 2.15.2** - JSON processing library
+- **JUnit 5.12.2 / Mockito 5.17.0** - Testing framework
+- **ControlsFX / BootstrapFX** - Enhanced UI controls
 
 ### Architecture
 
-The application follows the **Model-View-Controller (MVC)** pattern:
+The application follows the **Model-View-Presenter (MVP)** pattern:
 
 - **Model Layer**: `Order` and `Orders` classes for data management
-- **View Layer**: FXML-based JavaFX user interfaces
-- **Controller Layer**: UI controllers and business logic
-- **Service Layer**: `CommandSelector` for order selection algorithms
+- **View Layer**: `MainView` (JavaFX/FXML) implementing `MainViewUI`
+- **Presenter Layer**: `MainViewPresenter` coordinating between Model and View
+- **Service Layer**: `CommandSelector` and `OrdersLoader` for business logic
 
 ### Building from Source
 
@@ -241,19 +254,19 @@ We welcome contributions to the Civil War General project! Please see [CONTRIBUT
 
 ## 🗺️ Roadmap
 
-### Stage 1: Command Selection Tool ✅ *Current*
+### Stage 1: Command Selection Tool ✅ *Complete*
 - [x] Random order selection from predefined sets
-- [x] Basic JavaFX user interface
-- [x] JSON-based order configuration
+- [x] Model-View-Presenter (MVP) architecture
+- [x] JSON-based order configuration and loading
 - [x] Order validation and management
-- [ ] Comprehensive unit test suite
-- [ ] User documentation and help system
+- [x] Comprehensive unit and integration test suite (100+ tests)
+- [x] Industry-standard Javadoc documentation
 
-### Stage 2: Enhanced Decision Making *Planned*
-- [ ] AI-based command selection algorithms
-- [ ] Battlefield condition analysis
-- [ ] Troop state and morale factors
-- [ ] Supply situation assessment
+### Stage 2: AI-Driven Tactical Analysis ⚔️ *Current*
+- [ ] Contextual Data Models (Battlefield Conditions & Troop States)
+- [ ] AI-based command selection algorithms (Weighted Suitability)
+- [ ] Enhanced UI with Tactical Context panel
+- [ ] AI Reasoning display
 - [ ] Historical accuracy improvements
 
 ### Stage 3: Advanced Simulation *Future*

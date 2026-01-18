@@ -19,7 +19,7 @@ This document provides comprehensive architectural documentation for the Civil W
 
 ## Architectural Overview
 
-Civil War General follows a **layered architecture** based on the **Model-View-Controller (MVC)** pattern, designed for evolutionary development across multiple stages. The architecture prioritizes extensibility, maintainability, and clear separation of concerns.
+Civil War General follows a **layered architecture** based on the **Model-View-Presenter (MVP)** pattern, designed for evolutionary development across multiple stages. The architecture prioritizes extensibility, maintainability, and clear separation of concerns.
 
 ### High-Level Architecture Diagram
 
@@ -29,16 +29,16 @@ Civil War General follows a **layered architecture** based on the **Model-View-C
 ├─────────────────────────────────────────────────────────────┤
 │  JavaFX UI Components  │  FXML Layouts  │  CSS Styling     │
 │  - MainView.fxml       │  - Controllers │  - Themes        │
-│  - Dialog Components   │  - Event Handlers                 │
+│  - Custom Controls     │                                   │
 └─────────────────────────────────────────────────────────────┘
                                 │
                                 ▼
 ┌─────────────────────────────────────────────────────────────┐
-│                    CONTROLLER LAYER                         │
+│                    PRESENTER LAYER                          │
 ├─────────────────────────────────────────────────────────────┤
-│  UI Controllers        │  Event Coordination                │
-│  - MainView            │  - User Input Validation          │
-│  - DialogControllers   │  - UI State Management            │
+│  UI Logic              │  Event Coordination                │
+│  - MainViewPresenter   │  - View/Model Synchronization     │
+│  - MainViewUI (Interface)                                   │
 └─────────────────────────────────────────────────────────────┘
                                 │
                                 ▼
@@ -46,9 +46,8 @@ Civil War General follows a **layered architecture** based on the **Model-View-C
 │                     SERVICE LAYER                           │
 ├─────────────────────────────────────────────────────────────┤
 │  Business Logic        │  AI Components                     │
-│  - CommandSelector     │  - Future: BattlefieldAnalyzer    │
-│  - OrderValidator      │  - Future: TacticalAI             │
-│  - ConfigurationMgr    │  - Future: HistoricalAccuracy     │
+│  - CommandSelector     │  - OrdersLoader                   │
+│  - OrderValidator      │  - Future: TacticalAISelector     │
 └─────────────────────────────────────────────────────────────┘
                                 │
                                 ▼
@@ -56,9 +55,8 @@ Civil War General follows a **layered architecture** based on the **Model-View-C
 │                      MODEL LAYER                            │
 ├─────────────────────────────────────────────────────────────┤
 │  Data Models           │  Domain Objects                    │
-│  - Order               │  - Future: BattlefieldConditions  │
-│  - Orders              │  - Future: TroopState             │
-│  - Configuration       │  - Future: SupplyState            │
+│  - Order               │  - Future: TacticalContext        │
+│  - Orders              │                                   │
 └─────────────────────────────────────────────────────────────┘
                                 │
                                 ▼
@@ -66,8 +64,8 @@ Civil War General follows a **layered architecture** based on the **Model-View-C
 │                   PERSISTENCE LAYER                         │
 ├─────────────────────────────────────────────────────────────┤
 │  Data Access           │  File I/O                          │
-│  - JSON Serialization  │  - Configuration Files            │
-│  - Resource Loading    │  - Future: Database Integration   │
+│  - JSON Serialization  │  - Classpath Resources            │
+│  - Jackson Library     │                                   │
 └─────────────────────────────────────────────────────────────┘
 ```
 
@@ -77,11 +75,11 @@ Civil War General follows a **layered architecture** based on the **Model-View-C
 
 ### 1. **Separation of Concerns**
 Each layer has distinct responsibilities:
-- **Presentation**: User interface and user experience
-- **Controller**: User input handling and UI coordination
-- **Service**: Business logic and algorithms
+- **Presentation (View)**: User interface and user experience (JavaFX/FXML)
+- **Presenter**: UI logic and coordination between Model and View
+- **Service**: Business logic and algorithms (Selection, Loading)
 - **Model**: Data representation and validation
-- **Persistence**: Data storage and retrieval
+- **Persistence**: Data storage and retrieval (JSON)
 
 ### 2. **Extensibility First**
 Architecture designed for future AI integration:
@@ -120,21 +118,18 @@ Architecture supports comprehensive testing:
 ```
 ┌─────────────────┐    ┌─────────────────┐    ┌─────────────────┐
 │   CivilWarGeneral   │    │   MainView      │    │  CommandSelector │
-│   (Application)     │    │   (Controller)  │    │   (AI Service)   │
+│   (Application)     │    │   (View)        │    │   (Service)      │
 │                     │    │                 │    │                  │
-│ + main()            │    │ + initialize()  │    │ + randomSelector()│
-│ + start()           │    │ + onButtonClick()│    │ + validateOrder() │
+│ + start()           │    │ + initialize()  │    │ + randomOrderSelector()
 └─────────────────┘    └─────────────────┘    └─────────────────┘
-         │                       │                       │
          │                       │                       │
          ▼                       ▼                       ▼
 ┌─────────────────┐    ┌─────────────────┐    ┌─────────────────┐
-│     Orders      │    │     Order       │    │  Configuration  │
-│  (Collection)   │    │   (Entity)      │    │   (Settings)    │
-│                 │    │                 │    │                 │
-│ + loadFromFile()│    │ + isValid()     │    │ + loadDefaults()│
-│ + addOrder()    │    │ + getName()     │    │ + getProperty() │
-│ + getAllOrders()│    │ + getDescription()   │ + setProperty() │
+│  MainViewPresenter  │    │     Order       │    │  OrdersLoader    │
+│  (Presenter)        │    │   (Model)       │    │   (Service)      │
+│                     │    │                 │    │                  │
+│ + initialize()      │    │ + isValid()     │    │ + loadDefaults() │
+│ + onGenerateClicked()    │                 │    │                  │
 └─────────────────┘    └─────────────────┘    └─────────────────┘
 ```
 
@@ -142,12 +137,13 @@ Architecture supports comprehensive testing:
 
 | Component | Layer | Responsibility | Future Evolution |
 |-----------|-------|----------------|------------------|
-| `CivilWarGeneral` | Presentation | Application lifecycle | Multi-window support |
-| `MainView` | Controller | UI event handling | Advanced UI controls |
-| `CommandSelector` | Service | Order selection logic | AI-based algorithms |
+| `CivilWarGeneral` | Presentation | Application lifecycle & DI | Multi-window support |
+| `MainView` | View | UI implementation (JavaFX) | Advanced UI controls |
+| `MainViewPresenter` | Presenter | Coordination & UI logic | AI Strategy coordination |
+| `CommandSelector` | Service | Order selection logic | AI-driven selection |
+| `OrdersLoader` | Service | Data retrieval interface | Multi-source loading |
 | `Orders` | Model | Order collection management | Advanced querying |
-| `Order` | Model | Order data and validation | Extended attributes |
-| `Configuration` | Persistence | Settings management | Database integration |
+| `Order` | Model | Order data and validation | Contextual weights |
 
 ---
 
@@ -156,11 +152,11 @@ Architecture supports comprehensive testing:
 ### Current Data Flow (Stage 1)
 
 ```
-User Input → UI Controller → Service Layer → Data Model → JSON File
-    ↓             ↓              ↓             ↓           ↓
-[Button Click] → [Event Handler] → [Random Selection] → [Order Object] → [File I/O]
-    ↑             ↑              ↑             ↑           ↑
-User Display ← UI Update ← Service Response ← Data Validation ← File Loading
+User Input → View (UI) → Presenter → Selection Service → Data Model → JSON File
+    ↓             ↓           ↓              ↓             ↓           ↓
+[Button Click] → [Event] → [Coordination] → [Randomization] → [Order Object] → [File I/O]
+    ↑             ↑           ↑              ↑             ↑           ↑
+User Display ← UI Update ← Presenter Response ← Service Result ← Data Validation ← File Loading
 ```
 
 ### Detailed Flow Sequence
@@ -176,11 +172,12 @@ User Display ← UI Update ← Service Response ← Data Validation ← File Loa
 2. Command Generation
    ├── User clicks "Generate Command"
    ├── MainView.onCommandButtonClick()
+   ├── MainViewPresenter.onGenerateClicked()
    ├── CommandSelector.randomOrderSelector()
    ├── Orders.getAllOrders()
    ├── SecureRandom selection
    ├── Order validation
-   ├── UI ListView update
+   ├── MainView.addOrder()
    └── Command displayed
 
 3. Error Handling
@@ -204,17 +201,25 @@ Historical Data ← Learning System ← Feedback Loop ← Performance Metrics �
 
 ## Design Patterns
 
-### 1. **Model-View-Controller (MVC)**
-**Implementation**: Clear separation between data, presentation, and control logic
+### 1. **Model-View-Presenter (MVP)**
+The system follows a clean MVP pattern with explicit interface contracts:
+
+- **Model**: `Order` and `Orders` classes managing data and business rules.
+- **View**: `MainView` (linked to `main-view.fxml`) implementing the `MainViewUI` interface.
+- **Presenter**: `MainViewPresenter` coordinating between the `OrdersLoader`, `CommandSelector`, and `MainViewUI`.
+
 ```java
 // Model
 public class Order { /* Data and validation */ }
 
-// View  
-public class MainView.fxml { /* UI layout */ }
+// View (Contract)
+public interface MainViewUI { /* UI updates */ }
 
-// Controller
-public class MainView { /* Event handling */ }
+// View (Implementation)
+public class MainView implements MainViewUI { /* JavaFX/FXML */ }
+
+// Presenter
+public class MainViewPresenter { /* Coordination */ }
 ```
 
 ### 2. **Strategy Pattern** (Future)
@@ -277,8 +282,8 @@ public interface ExecutableOrder {
 ┌─────────────────────────────────────────────────────────────┐
 │                    APPLICATION TIER                         │
 ├─────────────────────────────────────────────────────────────┤
-│  Java 17+          │  Maven 3.6+      │  JUnit 5.10.2      │
-│  Jackson 2.x       │  SLF4J Logging   │  Mockito Testing   │
+│  Java 23           │  Maven 3.9+      │  JUnit 5.12.2      │
+│  Jackson 2.15.2    │  SLF4J Logging   │  Mockito 5.17.0    │
 └─────────────────────────────────────────────────────────────┘
                                 │
                                 ▼
@@ -294,10 +299,12 @@ public interface ExecutableOrder {
 
 | Technology | Purpose | Rationale | Future Evolution |
 |------------|---------|-----------|------------------|
-| **JavaFX** | Desktop UI | Rich desktop experience, FXML support | WebView integration |
+| **Java 23** | Language | Latest LTS features, improved performance | Future Java updates |
+| **JavaFX 17** | Desktop UI | Rich desktop experience, FXML support | WebView integration |
 | **Maven** | Build system | Dependency management, standard lifecycle | Multi-module builds |
 | **Jackson** | JSON processing | Robust serialization, annotation support | XML/YAML support |
 | **JUnit 5** | Testing framework | Modern testing features, parameterized tests | Integration testing |
+| **Mockito** | Mocking | Isolated component testing for MVP | Behavioral verification |
 | **SLF4J** | Logging | Flexible logging facade | Structured logging |
 
 ---
@@ -460,8 +467,8 @@ Standalone Desktop Application
 
 ```
 Developer Workstation
-├── Java 17+ JDK
-├── Maven 3.6+
+├── Java 23 JDK
+├── Maven 3.9+
 ├── IDE (IntelliJ IDEA recommended)
 ├── Git version control
 └── Local testing environment
@@ -488,15 +495,15 @@ Developer Workstation
 
 ## Architectural Decision Records (ADRs)
 
-### ADR-001: MVC Architecture Choice
-**Decision**: Adopt Model-View-Controller pattern
-**Rationale**: Clear separation of concerns, testability, maintainability
-**Consequences**: More classes, but better organization and extensibility
+### ADR-001: MVP Architecture Choice
+**Decision**: Adopt Model-View-Presenter pattern
+**Rationale**: Clear separation of concerns, testability, maintainability, and decoupling of JavaFX dependencies from business logic
+**Consequences**: More classes and interfaces, but significantly better organization and extensibility for Stage 2 AI features
 
 ### ADR-002: JavaFX for Desktop UI
 **Decision**: Use JavaFX instead of Swing or web technologies
 **Rationale**: Modern UI capabilities, FXML support, CSS styling
-**Consequences**: Java 17+ requirement, but rich user experience
+**Consequences**: Java 23 requirement, but rich user experience
 
 ### ADR-003: JSON for Configuration
 **Decision**: Use JSON instead of XML or properties files
